@@ -9,6 +9,7 @@ import TodayImage from "../../assets/img/tomorrow.jpg"
 import commonStyles from '../commonStyles'
 import Task from '../components/Task'
 import tasks from '../obj'
+import AddTask from './AddTask'
 
 
 export default class TaskList extends Component{
@@ -16,7 +17,8 @@ export default class TaskList extends Component{
     state = { 
         tasks,
         showDoneTasks: true,
-        visibleTasks: []
+        visibleTasks: [],
+        showAddTask: false,
     }
 
     componentDidMount = () => {
@@ -58,6 +60,7 @@ export default class TaskList extends Component{
         const today = moment().locale('pt-br').format('ddd, D [de] MMMM [de] YYYY')
         return(
             <View style={styles.container}>
+                <AddTask isVisible={this.state.showAddTask} onCancel={() => {this.setState({showAddTask: false})}} />
                 <ImageBackground style={styles.bg} source={TodayImage}>
                     <View style={styles.iconBar}>
                         <TouchableOpacity onPress={this.toggleFilter}>
@@ -76,6 +79,9 @@ export default class TaskList extends Component{
                         renderItem={({item}) => <Task {...item} toggleTask={this.toggleTask}/>}
                     />
                 </View>
+                <TouchableOpacity activeOpacity={0.5} style={styles.addButton} onPress={() => this.setState({showAddTask: true})}>
+                    <Icon name="plus" size={30} color={commonStyles.colors.secondary} />
+                </TouchableOpacity>
             </View>
         )
     }
@@ -92,7 +98,7 @@ const styles = StyleSheet.create({
         flex: 7
     },
     titleBar: {
-        backgroundColor:'rgba(255,26,26,0.5)',
+        backgroundColor: commonStyles.colors.todayBg,
         flex: 1,
         justifyContent: 'flex-end',
     },
@@ -111,10 +117,20 @@ const styles = StyleSheet.create({
         marginBottom: 30,
     },
     iconBar: {
-        backgroundColor:'rgba(255,26,26,0.5)',
+        backgroundColor: commonStyles.colors.todayBg,
         flexDirection: 'row',
         justifyContent: 'flex-end',
-        padding: 20
-
+        padding: 2
+    },
+    addButton: {
+        position: 'absolute',
+        right: 30,
+        bottom: 30,
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: commonStyles.colors.today,
+        justifyContent: 'center',
+        alignItems: 'center'
     }
 })
