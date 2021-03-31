@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import { ImageBackground, StyleSheet, Text, View, TouchableOpacity } from 'react-native'
+import { ImageBackground, StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native'
 import { FlatList } from 'react-native-gesture-handler'
 import moment from 'moment'
 import 'moment/locale/pt-br'
@@ -56,11 +56,28 @@ export default class TaskList extends Component{
         this.setState({tasks}, this.filterTasks)
     }
 
+    addTask = (newTask) => {
+        if(!newTask.desc || !newTask.desc.trim()){
+            Alert.alert('Dados inválidos', "Descrição não informada!");
+            return
+        }
+
+        const tasks = [...this.state.tasks]
+        tasks.push({
+            id: Math.random(),
+            desc: newTask.desc,
+            estimateAt: newTask.date,
+            doneAt: null
+        })
+
+        this.setState({tasks, showAddTask: false}, this.filterTasks)
+    }
+
     render(){
         const today = moment().locale('pt-br').format('ddd, D [de] MMMM [de] YYYY')
         return(
             <View style={styles.container}>
-                <AddTask isVisible={this.state.showAddTask} onCancel={() => {this.setState({showAddTask: false})}} />
+                <AddTask isVisible={this.state.showAddTask} onSave={this.addTask} onCancel={() => {this.setState({showAddTask: false})}} />
                 <ImageBackground style={styles.bg} source={TodayImage}>
                     <View style={styles.iconBar}>
                         <TouchableOpacity onPress={this.toggleFilter}>
