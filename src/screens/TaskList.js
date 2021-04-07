@@ -74,7 +74,7 @@ export default class TaskList extends Component{
         } catch (e) {
             showError(e)
         }
-    }
+    } 
 
     addTask = async (newTask) => {
         if(!newTask.desc || !newTask.desc.trim()){
