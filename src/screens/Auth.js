@@ -11,8 +11,8 @@ const INITIAL_STATE = {
     confirmPassword: "",
     stageNew: false,
     name: '',
-    email: "",
-    password: "",
+    email: "daniel.730@outlook.com",
+    password: "123456",
 }
 
 export default class Auth extends Component {
@@ -69,7 +69,7 @@ export default class Auth extends Component {
             validations.push(this.state.confirmPassword === this.state.password)
         }
 
-        const validForm = validations.reduce((total, valAtual) => total && valAtual)
+        const validForm = validations.reduce((total, atual) => total && atual)
 
         return(
             <ImageBackground style={styles.background} source={backgroundImage} blurRadius={5} resizeMode='cover' >
