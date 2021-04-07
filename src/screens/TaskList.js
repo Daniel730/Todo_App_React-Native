@@ -5,6 +5,7 @@ import moment from 'moment'
 import 'moment/locale/pt-br'
 import Icon from "react-native-vector-icons/FontAwesome"
 import axios from 'axios'
+import LinearGradient from 'react-native-linear-gradient'
 
 import { server, showError } from '../common'
 import TodayImage from "../../assets/img/tomorrow.jpg"
@@ -37,7 +38,7 @@ export default class TaskList extends Component{
 
     loadTasks = async () => {
         try {
-            const maxDate = moment().format('YYYY-MM-DD 23:59:59')
+            const maxDate = moment().add({ days: this.props.daysAhead }).format('YYYY-MM-DD 23:59:59')
             const res = await axios.get(`${server}/tasks?date=${maxDate}`)
             this.setState({ tasks: res.data }, this.filterTasks)
         } catch (e) {
@@ -105,21 +106,51 @@ export default class TaskList extends Component{
         this.setState({tasks}, this.filterTasks)
     }
 
+    getColor = () => {
+        switch (this.props.daysAhead) {
+            case 0:
+                return {bg: commonStyles.colors.todayBg, btn: commonStyles.colors.today}
+            case 1:
+                return {bg: commonStyles.colors.tomorrowBg, btn: commonStyles.colors.tomorrow}
+            case 7:
+                return {bg: commonStyles.colors.weekBg, btn: commonStyles.colors.week}
+            case 30:
+                return {bg: commonStyles.colors.monthBg, btn: commonStyles.colors.month}
+            default:
+                return {bg: commonStyles.colors.todayBg, btn: commonStyles.colors.today}
+        }
+    }
+
     render(){
         const today = moment().locale('pt-br').format('ddd, D [de] MMMM [de] YYYY')
         return(
             <View style={styles.container}>
                 <AddTask isVisible={this.state.showAddTask} onSave={this.addTask} onCancel={() => {this.setState({showAddTask: false})}} />
-                <ImageBackground style={styles.bg} source={TodayImage}>
-                    <View style={styles.iconBar}>
-                        <TouchableOpacity onPress={this.toggleFilter}>
-                            <Icon name={this.state.showDoneTasks ? "eye" : "eye-slash"} size={25} color={commonStyles.colors.secondary} />
-                        </TouchableOpacity>
-                    </View>
-                    <View style={styles.titleBar}>
-                        <Text style={styles.title}>Hoje</Text>
+                <ImageBackground style={styles.bg} source={TodayImage} blurRadius={2}>
+                    <LinearGradient
+                        colors={[this.getColor().bg[0], this.getColor().bg[1]]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={{
+                            flex: 1,
+                            justifyContent: 'space-between'
+                        }}
+                    >
+                        <View style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            padding: 20
+                        }}>
+                            <TouchableOpacity onPress={() => this.props.navigation.openDrawer()}>
+                                <Icon name="bars" size={20} color={commonStyles.colors.secondary} />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={this.toggleFilter}>
+                                <Icon name={this.state.showDoneTasks ? "eye" : "eye-slash"} size={25} color={commonStyles.colors.secondary} />
+                            </TouchableOpacity>
+                        </View>
+                        <Text style={styles.title}>{this.props.title}</Text>
                         <Text style={styles.subtitle}>{today}</Text>
-                    </View>
+                    </LinearGradient>
                 </ImageBackground>
                 <View style={styles.taskList}>
                     <FlatList 
@@ -128,7 +159,7 @@ export default class TaskList extends Component{
                         renderItem={({item}) => <Task {...item} toggleTask={this.toggleTask} onDelete={this.deleteTask} />}
                     />
                 </View>
-                <TouchableOpacity activeOpacity={0.5} style={styles.addButton} onPress={() => this.setState({showAddTask: true})}>
+                <TouchableOpacity activeOpacity={0.5} style={[styles.addButton, {backgroundColor: this.getColor().btn}]} onPress={() => this.setState({showAddTask: true})}>
                     <Icon name="plus" size={30} color={commonStyles.colors.secondary} />
                 </TouchableOpacity>
             </View>
@@ -146,11 +177,6 @@ const styles = StyleSheet.create({
     taskList:{
         flex: 7
     },
-    titleBar: {
-        backgroundColor: commonStyles.colors.todayBg,
-        flex: 1,
-        justifyContent: 'flex-end',
-    },
     title: {
         fontFamily: commonStyles.fontFamily,
         color: commonStyles.colors.secondary,
@@ -165,12 +191,6 @@ const styles = StyleSheet.create({
         marginLeft: 20,
         marginBottom: 30,
     },
-    iconBar: {
-        backgroundColor: commonStyles.colors.todayBg,
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        padding: 2
-    },
     addButton: {
         position: 'absolute',
         right: 30,
@@ -178,7 +198,6 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         borderRadius: 25,
-        backgroundColor: commonStyles.colors.today,
         justifyContent: 'center',
         alignItems: 'center'
     }
