@@ -1,10 +1,33 @@
 import React from 'react'
-import { ScrollView, StyleSheet, Text, View } from 'react-native'
+import { ScrollView, StyleSheet, Text, View, TouchableOpacity, AsyncStorage, Alert } from 'react-native'
 import { DrawerItems } from 'react-navigation-drawer'
 import { Gravatar } from "react-native-gravatar"
 import commonStyles from '../commonStyles'
+import Icon from 'react-native-vector-icons/FontAwesome'
+import Axios from 'axios'
 
 export default props => {
+
+    const logout = () => {
+        Alert.alert(
+            "Tem certeza?",
+            "Você está saindo da aplicação...",
+            [
+                {
+                    text: "Cancelar",
+                    onPress: () => false
+                },
+                { 
+                    text: "Sair", onPress: () => {
+                        delete Axios.defaults.headers.common['Authorization']
+                        AsyncStorage.removeItem("userData")
+                        props.navigation.navigate("AuthOrApp")
+                    } 
+                }
+            ]
+          );
+        
+    }
     
     const optionsGravatar = {
         email: props.navigation.getParam("email"),
@@ -26,6 +49,11 @@ export default props => {
                         {props.navigation.getParam("email")}
                     </Text>
                 </View>
+                <TouchableOpacity onPress={logout}>
+                    <View style={styles.logoutIcon}>
+                        <Icon name="sign-out" size={30} color="red" />
+                    </View>
+                </TouchableOpacity>
             </View>
             <DrawerItems {...props} />
         </ScrollView>
@@ -62,5 +90,9 @@ const styles = StyleSheet.create({
         fontSize: 15,
         color: commonStyles.colors.subText,
         marginBottom: 5
+    },
+    logoutIcon: {
+        marginLeft: 10,
+        marginBottom: 10
     }
 })

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { ImageBackground, StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native'
+import { ImageBackground, StyleSheet, Text, View, TouchableOpacity, Alert, AsyncStorage } from 'react-native'
 import commonStyles from '../commonStyles'
 
 import backgroundImage from '../../assets/img/login.jpg'
@@ -11,8 +11,8 @@ const INITIAL_STATE = {
     confirmPassword: "",
     stageNew: false,
     name: '',
-    email: "daniel.730@outlook.com",
-    password: "123456",
+    email: '',
+    password: '',
 }
 
 export default class Auth extends Component {
@@ -51,6 +51,7 @@ export default class Auth extends Component {
                 password: this.state.password
             })
 
+            AsyncStorage.setItem("userData", JSON.stringify(res.data))
             Axios.defaults.headers.common['Authorization'] = `bearer ${res.data.token}`
             this.props.navigation.navigate("Home", res.data)
         } catch (e) {
